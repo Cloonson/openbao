@@ -236,6 +236,12 @@ export default Component.extend(TRANSIT_PARAMS, {
           formData.input = encodeString(formData.input);
         }
       }
+      // 'hash_algorithm' is dropped because it needs to be 'algorithm' (see path_hmac.go) -> defaults to sha2-256. 
+      // This is just a quick fix to make it work.
+      if (action === 'verify' && formData.hash_algorithm && !!formData.hmac){
+        formData.algorithm = formData.hash_algorithm;
+        delete formData.hash_algorithm;
+      }
       const payload = formData ? this.compactData(formData) : null;
       this.setProperties({
         errors: null,
