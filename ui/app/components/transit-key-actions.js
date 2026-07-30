@@ -236,6 +236,17 @@ export default Component.extend(TRANSIT_PARAMS, {
           formData.input = encodeString(formData.input);
         }
       }
+
+      /*
+      verify.hbs sends the algorithm as 'hash_algorithm' for both HMAC and signature verify,
+      but pathHMACVerify (path_hmac.go) only reads 'algorithm'. Unrecognized fields are silently
+      dropped, so HMAC verify defaults to sha2-256 and fails unless that's the real algorithm. :)
+      Remap the field for the HMAC case before submitting.
+      */
+      if (action === 'verify' && !!formData.hmac && formData.hash_algorithm) {
+        formData.algorithm = formData.hash_algorithm;
+        delete formData.hash_algorithm;
+      }
       const payload = formData ? this.compactData(formData) : null;
       this.setProperties({
         errors: null,
